@@ -8,8 +8,8 @@ function Navigation({ isLoggedIn, handleLogout }) {
         <div className="text-white text-lg font-bold">My Dashboard</div>
         <ul className="flex space-x-4">
           <li>
-            <Link to="/" className="text-gray-300 hover:text-white">
-              Product
+            <Link to="/products" className="text-gray-300 hover:text-white">
+              Products
             </Link>
           </li>
           <li>

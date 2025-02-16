@@ -4,6 +4,7 @@ import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
+import Products from "./components/Products"
 import "./App.css";
 import AddProduct from "./components/AddProduct";
 
@@ -24,12 +25,15 @@ function App() {
     setIsLoggedIn(false);
   };
 
+  
+
   return (
     <BrowserRouter>
       <Navigation isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
       <Routes>
         <Route path="/" element={<h1>Product component</h1>} />
         <Route path="/addProduct" element={<AddProduct/>} />
+        <Route path="/products" element={<Products/>} />
         <Route path="/update" element={<h1>Update component</h1>} />
         <Route path="/profile" element={<h1>Profile component</h1>} />
         <Route
@@ -40,7 +44,7 @@ function App() {
           path="/login"
           element={<Login setIsLoggedIn={setIsLoggedIn} />}
         />
-    
+
       </Routes>
       <Footer />
     </BrowserRouter>

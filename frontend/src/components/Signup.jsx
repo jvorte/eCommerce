@@ -1,10 +1,10 @@
 import { useState } from "react";
-import React from "react";
+
 import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
-  const [name, setName] = useState("heur");  // Προκαθορισμένη τιμή
-  const [email, setEmail] = useState("jvortelinas@gmail.com");  // Προκαθορισμένη τιμή
+  const [name, setName] = useState("name");  // Προκαθορισμένη τιμή
+  const [email, setEmail] = useState("mail");  // Προκαθορισμένη τιμή
   const [password, setPassword] = useState("");  // Άδεια τιμή
   const navigate = useNavigate();
 
@@ -18,7 +18,7 @@ const collectData = async () => {
 
   console.log("Data collected:", { name, email, password });
   try {
-    let result = await fetch("http://localhost:3000/users", {
+    let result = await fetch("http://localhost:3000/api/users", {
       method: "POST",
       body: JSON.stringify({ name, email, password }),
       headers: {

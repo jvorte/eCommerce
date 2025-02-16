@@ -13,40 +13,41 @@ const AddProduct = () => {
     setImage(e.target.files[0]); // Αποθηκεύουμε το αρχείο εικόνας
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Δημιουργία ενός αντικειμένου FormData
+  const handleSubmit =  async (event) => {
+    event.preventDefault();
+  
     const formData = new FormData();
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("price", price);
-    formData.append("image", image); // Προσθήκη της εικόνας
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('image', image); // Εικόνα
+  
+   // Προσθήκη console log για έλεγχο των δεδομένων
+  console.log('Form Data being sent:', {
+    name,
+    description,
+    price,
+    image: image ? image.name : 'No image',  // Εμφανίζει το όνομα του αρχείου
+  });
 
-    try {
-      const response = await fetch("http://localhost:3000/addproduct", {
-        method: "POST",
-        body: formData, // Στέλνουμε το FormData
-      });
+  try {
+    const response = await fetch('http://localhost:3000/api/products', {
+      method: 'POST',
+      body: formData,
+    });
 
-      const result = await response.json();
+    const data = await response.json();
+    console.log('Response:', data);
 
-      if (response.ok) {
-        setMessage("Product added successfully!");
-        setName("");
-        setDescription("");
-        setPrice("");
-        setImage(null);
-        navigate("/"); // Ανακατεύθυνση αν χρειάζεται
-      } else {
-        setMessage(`Error: ${result.message}`);
-      }
-    } catch (error) {
-      setMessage("Failed to add product. Please try again.");
-      console.error(error);
+    if (response.ok) {
+      alert('Product added successfully');
+    } else {
+      alert('Failed to add product');
     }
-  };
-
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
   return (
     <div className="flex justify-center items-center">
       <form
