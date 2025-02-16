@@ -7,7 +7,7 @@ import Login from "./components/Login";
 import Products from "./components/Products"
 import "./App.css";
 import AddProduct from "./components/AddProduct";
-
+import UpdateProduct from "./components/UpdateProduct";
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -34,15 +34,13 @@ function App() {
         <Route path="/" element={<h1>Product component</h1>} />
         <Route path="/addProduct" element={<AddProduct/>} />
         <Route path="/products" element={<Products/>} />
-        <Route path="/update" element={<h1>Update component</h1>} />
+        {/* <Route path="/update" element={<h1>Update component</h1>} /> */}
+        
         <Route path="/profile" element={<h1>Profile component</h1>} />
-        <Route
-          path="/signup"
-          element={<Signup setIsLoggedIn={setIsLoggedIn} />}
+        <Route path="/update/:id" element={<UpdateProduct/> }/>
+        <Route path="/signup" element={<Signup setIsLoggedIn={setIsLoggedIn} />}
         />
-        <Route
-          path="/login"
-          element={<Login setIsLoggedIn={setIsLoggedIn} />}
+        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />}
         />
 
       </Routes>

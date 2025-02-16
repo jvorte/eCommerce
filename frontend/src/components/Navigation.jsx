@@ -17,11 +17,11 @@ function Navigation({ isLoggedIn, handleLogout }) {
               Add Product
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link to="/update" className="text-gray-300 hover:text-white">
               Update Product
             </Link>
-          </li>
+          </li> */}
 
           {isLoggedIn ? (
             <>

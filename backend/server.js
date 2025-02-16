@@ -10,6 +10,7 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+
 app.use(cors({
   origin: 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -124,4 +125,76 @@ app.use((req, res) => {
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+
+// Διαγραφή προϊόντος
+app.delete('/api/products/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Έλεγχος εγκυρότητας του ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Μη έγκυρο format ID προϊόντος' });
+    }
+
+    // Έλεγχος αν το προϊόν υπάρχει
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: 'Το προϊόν δεν βρέθηκε' });
+    }
+
+    // Διαγραφή προϊόντος
+    await Product.findByIdAndDelete(id);
+    res.status(200).json({ message: 'Το προϊόν διαγράφηκε επιτυχώς' });
+  } catch (error) {
+    res.status(500).json({ message: 'Αποτυχία διαγραφής προϊόντος', error: error.message });
+  }
+});
+
+
+// Get single product by ID
+app.get('/api/products/:id', async (req, res) => {
+  const { id } = req.params;  // Λαμβάνουμε το ID από το URL
+  try {
+    const product = await Product.findById(id);  // Βρίσκουμε το προϊόν με το ID
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.json(product);  // Στέλνουμε το προϊόν πίσω στον πελάτη
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    res.status(500).json({ message: 'Error fetching product' });
+  }
+});
+// Ενημέρωση προϊόντος
+app.put('/api/products/:id', upload.single('image'), async (req, res) => {
+  const { id } = req.params;
+  const { name, description, price } = req.body;
+  const image = req.file ? req.file.filename : null;
+
+  try {
+    // Έλεγχος εγκυρότητας του ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Μη έγκυρο format ID προϊόντος' });
+    }
+
+    // Έλεγχος αν το προϊόν υπάρχει
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: 'Το προϊόν δεν βρέθηκε' });
+    }
+
+    // Ενημέρωση των πεδίων του προϊόντος
+    product.name = name || product.name;
+    product.description = description || product.description;
+    product.price = price || product.price;
+    if (image) product.image = image;
+
+    // Αποθήκευση αλλαγών
+    await product.save();
+    res.status(200).json({ message: 'Το προϊόν ενημερώθηκε επιτυχώς', product });
+  } catch (error) {
+    res.status(500).json({ message: 'Αποτυχία ενημέρωσης προϊόντος', error: error.message });
+  }
 });

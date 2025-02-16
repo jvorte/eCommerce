@@ -1,40 +1,66 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 
-const API_URL = 'http://localhost:3000'; // Backend URL
+const API_URL = 'http://localhost:3000';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);  // Κατάσταση για φόρτωση
-  const [error, setError] = useState(null);  // Κατάσταση για σφάλματα
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
-  }, []); // Fetch products μόλις φορτώσει το component
-  
+  }, []);
+
   const fetchProducts = async () => {
-    console.log("Fetching products...");
     try {
       setIsLoading(true);
       const response = await fetch(`${API_URL}/api/products`);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-  
+      if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
       const data = await response.json();
-      console.log('Products received:', data);
       setProducts(data);
     } catch (error) {
-      console.error("Error fetching products:", error);
       setError(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;  // Εμφάνιση κατάστασης φόρτωσης
-  if (error) return <div>Error: {error}</div>;  // Εμφάνιση του σφάλματος αν υπάρχει
+  const handleDeleteClick = (productId) => {
+    setProductToDelete(productId);
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!productToDelete) return;
+    console.log("Deleting product with ID:", productToDelete);  // Ελέγξτε το ID στο frontend
+    try {
+      const response = await fetch(`${API_URL}/api/products/${productToDelete}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error("Failed to delete product");
+      setProducts((prev) => prev.filter((p) => p._id !== productToDelete));
+    } catch (error) {
+      setError(error.message);
+      alert(`Error: ${error.message}`);
+    } finally {
+      setShowConfirm(false);
+      setProductToDelete(null);
+    }
+  };
+  console.log("Deleting product with ID:", productToDelete); // Ελέγξτε το ID στο frontend
+
+  const handleUpdateClick = (productId) => {
+    console.log("Selected product ID:", productId);
+    navigate(`/update/${productId}`);
+  };
+
+  if (isLoading) return <div className="loader">Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="products-container">
@@ -42,27 +68,54 @@ const Products = () => {
       <div className="products-grid">
         {products.length > 0 ? (
           products.map((product) => (
-            <div key={product._id} className="product-card">
+            <div key={product._id} className="product-card relative">
               <h3>{product.name}</h3>
-              <p>Description:{product.description}</p>
-              <p>Price: ${product.price}</p>
-              {product.image && (
+              <div className="relative">
                 <img
-                  src={`http://localhost:3000/uploads/${product.image}`}
+                  src={product.image ? `${API_URL}/uploads/${product.image}` : "/placeholder.png"}
                   alt={product.name}
                   className="product-image"
-                  onError={(e) => {
-                    console.error(`Error loading image for ${product.name}`);
-                    e.target.src = '/placeholder.jpg';  // Placeholder αν δεν φορτώσει η εικόνα
-                  }}
                 />
-              )}
+                <p>Description: {product.description}</p>
+                <p>Price: ${product.price}</p>
+                <div className="absolute inset-0 flex items-center justify-center space-x-2 bg-black/50 opacity-0 hover:opacity-100 transition-opacity duration-300">
+                  <button
+                    onClick={() => handleUpdateClick(product._id)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                  >
+                    Update
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(product._id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
             </div>
           ))
         ) : (
-          <p>No products found</p>
+          <p>No products available. Please add some products to display here.</p>
         )}
       </div>
+
+      {showConfirm && (
+        <div className="modal">
+          <div className="modal-content">
+            <p>Are you sure you want to delete this product?</p>
+            <button onClick={confirmDelete} className="confirm-button">
+              Yes
+            </button>
+            <button
+              onClick={() => setShowConfirm(false)}
+              className="cancel-button"
+            >
+              No
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
